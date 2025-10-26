@@ -1,90 +1,99 @@
+-- Bảng Customers
 CREATE TABLE customers (
-  id SERIAL PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  name VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  is_active BOOLEAN DEFAULT TRUE
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  email NVARCHAR(255) UNIQUE NOT NULL,
+  password NVARCHAR(255) NOT NULL,
+  name NVARCHAR(255),
+  created_at DATETIME DEFAULT GETDATE(),
+  updated_at DATETIME DEFAULT GETDATE(),
+  is_active BIT DEFAULT 1
 );
 
+-- Bảng Destinations
 CREATE TABLE destinations (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  location POINT NOT NULL,
-  description TEXT,
-  province VARCHAR(100),
-  category VARCHAR(100),
-  activities TEXT[],
-  estimated_cost NUMERIC,
-  best_time_start INTEGER,
-  best_time_end INTEGER,
-  sustainability JSONB,
-  images TEXT[],
-  rating NUMERIC,
-  popularity INTEGER,
-  is_active BOOLEAN DEFAULT TRUE
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  name NVARCHAR(255) NOT NULL,
+  location GEOGRAPHY NOT NULL, -- Lưu tọa độ (lat, lng)
+  description NVARCHAR(MAX),
+  province NVARCHAR(100),
+  category NVARCHAR(100),
+  activities NVARCHAR(MAX), -- Lưu dạng JSON string
+  estimated_cost DECIMAL(18,2),
+  best_time_start INT,
+  best_time_end INT,
+  sustainability NVARCHAR(MAX), -- Lưu dạng JSON string
+  images NVARCHAR(MAX), -- Lưu dạng JSON string
+  rating DECIMAL(3,1),
+  popularity INT,
+  is_active BIT DEFAULT 1
 );
 
+-- Bảng Itineraries
 CREATE TABLE itineraries (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES customers(id),
-  group_id INTEGER REFERENCES groups(id),
-  preferences JSONB,
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  user_id INT FOREIGN KEY REFERENCES customers(id),
+  group_id INT FOREIGN KEY REFERENCES groups(id),
+  preferences NVARCHAR(MAX), -- Lưu JSON string cho sở thích
   start_date DATE,
   end_date DATE,
-  total_cost NUMERIC,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  is_active BOOLEAN DEFAULT TRUE
+  total_cost DECIMAL(18,2),
+  created_at DATETIME DEFAULT GETDATE(),
+  updated_at DATETIME DEFAULT GETDATE(),
+  is_active BIT DEFAULT 1
 );
 
+-- Bảng Itinerary_Destinations
 CREATE TABLE itinerary_destinations (
-  id SERIAL PRIMARY KEY,
-  itinerary_id INTEGER REFERENCES itineraries(id),
-  destination_id INTEGER REFERENCES destinations(id),
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  itinerary_id INT FOREIGN KEY REFERENCES itineraries(id),
+  destination_id INT FOREIGN KEY REFERENCES destinations(id),
   visit_date DATE,
-  duration INTEGER,
-  notes TEXT
+  duration INT,
+  notes NVARCHAR(MAX)
 );
 
+-- Bảng Routes
 CREATE TABLE routes (
-  id SERIAL PRIMARY KEY,
-  itinerary_id INTEGER REFERENCES itineraries(id),
-  from_destination_id INTEGER REFERENCES destinations(id),
-  to_destination_id INTEGER REFERENCES destinations(id),
-  distance NUMERIC,
-  duration INTEGER,
-  transport VARCHAR(50)
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  itinerary_id INT FOREIGN KEY REFERENCES itineraries(id),
+  from_destination_id INT FOREIGN KEY REFERENCES destinations(id),
+  to_destination_id INT FOREIGN KEY REFERENCES destinations(id),
+  distance DECIMAL(18,2),
+  duration INT,
+  transport NVARCHAR(50)
 );
 
+-- Bảng Groups
 CREATE TABLE groups (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  creator_id INTEGER REFERENCES customers(id),
-  itinerary_id INTEGER REFERENCES itineraries(id),
-  invite_link VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  is_active BOOLEAN DEFAULT TRUE
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  name NVARCHAR(255) NOT NULL,
+  description NVARCHAR(MAX),
+  creator_id INT FOREIGN KEY REFERENCES customers(id),
+  itinerary_id INT FOREIGN KEY REFERENCES itineraries(id),
+  invite_link NVARCHAR(255),
+  created_at DATETIME DEFAULT GETDATE(),
+  updated_at DATETIME DEFAULT GETDATE(),
+  is_active BIT DEFAULT 1
 );
 
+-- Bảng Group_Members
 CREATE TABLE group_members (
-  id SERIAL PRIMARY KEY,
-  group_id INTEGER REFERENCES groups(id),
-  customer_id INTEGER REFERENCES customers(id),
-  role VARCHAR(50),
-  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  group_id INT FOREIGN KEY REFERENCES groups(id),
+  customer_id INT FOREIGN KEY REFERENCES customers(id),
+  role NVARCHAR(50),
+  joined_at DATETIME DEFAULT GETDATE()
 );
 
+-- Bảng Votes
 CREATE TABLE votes (
-  id SERIAL PRIMARY KEY,
-  group_id INTEGER REFERENCES groups(id),
-  destination_id INTEGER REFERENCES destinations(id),
-  user_id INTEGER REFERENCES customers(id),
-  vote VARCHAR(20),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  group_id INT FOREIGN KEY REFERENCES groups(id),
+  destination_id INT FOREIGN KEY REFERENCES destinations(id),
+  user_id INT FOREIGN KEY REFERENCES customers(id),
+  vote NVARCHAR(20),
+  created_at DATETIME DEFAULT GETDATE()
 );
 
+-- Chỉ mục để tối ưu truy vấn
 CREATE INDEX idx_destinations_category ON destinations(category);
