@@ -1,0 +1,12 @@
+{
+  "name": "A-Travel-Itinerary-Design-and-Optimization-Application-Based-on-Real-Time-Data",
+  "version": "1.0.0",
+  "description": "Travel itinerary planner for Vietnam",
+  "scripts": {
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm start",
+    "test": "cd backend && npm test && cd ../frontend && npm test"
+  },
+  "author": "Nguyễn Đoàn Thùy Trâm",
+  "license": "MIT"
+}
